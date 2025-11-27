@@ -1,1 +1,1 @@
-export const API_URL = "http://192.168.31.164:3000";
+export const API_URL = "https://smartmedicalai-backend-4.onrender.com";

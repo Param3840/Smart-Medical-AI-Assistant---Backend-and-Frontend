@@ -25,7 +25,7 @@ export default function NearbyHospitalScreen({ route }) {
       return;
     }
 
-    fetch(`http://192.168.31.164:3000/geo-location?lat=${lat}&lng=${lng}`)
+    fetch(`https://smartmedicalai-backend-4.onrender.com/geo-location?lat=${lat}&lng=${lng}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Server error");
