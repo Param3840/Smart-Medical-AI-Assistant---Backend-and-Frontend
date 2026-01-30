@@ -8,7 +8,7 @@ An AI-powered mobile application that provides instant medical advice based on u
 
 ### 🔗 Download APK
 
-👉 [Download APK]([https://expo.dev/artifacts/eas/YOUR_APK_LINK_HERE](https://expo.dev/accounts/param3840/projects/smartmedicalapp/builds/02678292-42f3-4e96-8568-8ce29babea64))
+👉 [Download APK](https://expo.dev/accounts/param3840/projects/smartmedicalapp/builds/02678292-42f3-4e96-8568-8ce29babea64)
 
 ### 📷 Scan QR Code
 
@@ -22,7 +22,7 @@ Scan the QR code below to install the app directly on your Android device:
 
 Watch the full working demo of the app in action:
 
-👉 [Watch Demo on Google Drive]([https://drive.google.com/file/d/YOUR_VIDEO_ID/view](https://drive.google.com/file/d/1lwVWl2KChlIyFZGYnHgtXF_6hsYNJQug/view?usp=sharing))
+👉 [Watch Demo on Google Drive](https://drive.google.com/file/d/1lwVWl2KChlIyFZGYnHgtXF_6hsYNJQug/view?usp=sharing)
 
 ---
 
