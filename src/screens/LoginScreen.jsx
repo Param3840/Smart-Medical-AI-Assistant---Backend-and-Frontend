@@ -32,17 +32,17 @@ export default function LoginScreen({ navigation }) {
       console.log("Login response:", data);
 
       if (data.success) {
-        // ✅ Check if gender and age exist
+
         if (!data.user.gender || !data.user.age) {
           console.warn("Missing gender or age in login response:", data.user);
         }
 
-        // ✅ Save user data locally
+
         await AsyncStorage.setItem("user", JSON.stringify(data.user));
         console.log("Saved user after login:", data.user);
 
         Alert.alert("Success", "Login successful");
-        
+
         navigation.replace("Home");
       } else {
         Alert.alert("Error", data.message || "Login failed");
@@ -63,6 +63,7 @@ export default function LoginScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Enter your email"
+        placeholderTextColor="#999"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -72,6 +73,7 @@ export default function LoginScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Enter your password"
+        placeholderTextColor="#999"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -83,7 +85,10 @@ export default function LoginScreen({ navigation }) {
 
       <Text style={styles.signupText}>
         Don't have an account?{" "}
-        <Text style={styles.signupLink} onPress={() => navigation.navigate("Signup")}>
+        <Text
+          style={styles.signupLink}
+          onPress={() => navigation.navigate("Signup")}
+        >
           Sign Up
         </Text>
       </Text>
@@ -129,6 +134,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 12,
     backgroundColor: "#fff",
+    color: "#000",              
   },
   loginButton: {
     width: "100%",

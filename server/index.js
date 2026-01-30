@@ -22,23 +22,23 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
 
+// ---------------- ROOT ----------------
 app.get("/", (req, res) => {
   res.json({ ok: true });
 });
 
 // ---------------- AUTH ----------------
-
 app.post("/signup", async (req, res) => {
   const { fullName, age, gender, email, password } = req.body;
   try {
     const existing = await User.findOne({ email });
-    if (existing) return res.json({ success: false, message: "Email already exists" });
+    if (existing) return res.status(409).json({ success: false, message: "Email already exists" });
 
     const hash = await bcrypt.hash(password, 10);
     const user = new User({ fullName, age, gender, email, password: hash });
     await user.save();
 
-    res.json({
+    res.status(201).json({
       success: true,
       user: {
         fullName: user.fullName,
@@ -48,8 +48,8 @@ app.post("/signup", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.json({ success: false, message: "Server error" });
+    console.error("Signup error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
@@ -57,12 +57,13 @@ app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.json({ success: false, message: "User not found" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.json({ success: false, message: "Invalid password" });
+    if (!match) return res.status(401).json({ success: false, message: "Invalid password" });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
     res.json({
       success: true,
       token,
@@ -75,13 +76,12 @@ app.post("/login", async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
-    res.json({ success: false, message: "Server error" });
+    console.error("Login error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 // ---------------- REMINDER ----------------
-
 app.post("/reminder", async (req, res) => {
   const { userId, task, interval, time } = req.body;
 
@@ -92,7 +92,7 @@ app.post("/reminder", async (req, res) => {
   try {
     const reminder = new Reminder({ userId, task, interval, time });
     await reminder.save();
-    res.json({ success: true, reminder });
+    res.status(201).json({ success: true, reminder });
   } catch (err) {
     console.error("Reminder error:", err);
     res.status(500).json({ success: false, message: "Failed to save reminder" });
@@ -110,7 +110,6 @@ app.get("/reminder/:userId", async (req, res) => {
 });
 
 // ---------------- ANALYZE ----------------
-
 const fallbackRules = {
   fever: [
     { name: "Flu", description: "Common viral infection", percentage: 70, mostLikely: true },
@@ -148,19 +147,17 @@ app.post("/analyze", async (req, res) => {
 
   try {
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         contents: [
           {
             parts: [
               {
-                text: `
-You are a medical assistant. Based on the following symptoms, suggest 2–3 possible conditions with short descriptions and likelihood percentages.
+               text: `You are a medical assistant. Based on the following symptoms, suggest 2–3 possible conditions with short descriptions and likelihood percentages.
 
-Respond ONLY with raw JSON. Do NOT include markdown, code blocks, or formatting.
+Respond ONLY with raw JSON. Do NOT include markdown, code blocks, explanation, or formatting. Do NOT add any text before or after the JSON.
 
-Use this exact format:
-
+Return exactly this format:
 {
   "suggestions": [
     {
@@ -172,25 +169,32 @@ Use this exact format:
   ]
 }
 
-Symptoms: ${text}
-`
+Symptoms: ${text}`
+
               }
             ]
           }
         ]
       },
-      {
-        headers: { "Content-Type": "application/json" }
-      }
+      { headers: { "Content-Type": "application/json" } }
     );
 
     const rawText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const cleaned = rawText.replace(/```json|```/g, "").trim();
+
+    console.log("Gemini raw response:", rawText);
+    const match = rawText.match(/\{[\s\S]*\}/);
+console.log("Matched JSON block:", match?.[0]);
+
 
     let suggestions = [];
     try {
-      const parsed = JSON.parse(cleaned);
-      suggestions = parsed.suggestions || [];
+      const match = rawText.match(/\{[\s\S]*\}/);
+      if (match) {
+        const parsed = JSON.parse(match[0]);
+        suggestions = parsed.suggestions || [];
+      } else {
+        console.warn("No JSON block found in Gemini response.");
+      }
     } catch (err) {
       console.warn("Failed to parse Gemini JSON:", err.message);
     }
@@ -228,7 +232,6 @@ Symptoms: ${text}
 });
 
 // ---------------- GEO LOCATION ----------------
-
 app.get("/geo-location", async (req, res) => {
   const { lat, lng } = req.query;
 

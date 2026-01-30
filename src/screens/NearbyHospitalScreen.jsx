@@ -15,6 +15,7 @@ export default function NearbyHospitalScreen({ route }) {
   const { lat, lng } = route.params || {};
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [responseTime, setResponseTime] = useState(null); // NEW state
 
   useEffect(() => {
     console.log("📍 Fetching hospitals for:", lat, lng);
@@ -25,7 +26,9 @@ export default function NearbyHospitalScreen({ route }) {
       return;
     }
 
-    fetch(`https://smartmedicalai-backend-4.onrender.com/geo-location?lat=${lat}&lng=${lng}`)
+    const start = Date.now(); // start timer
+
+    fetch(`https://smartmedicalai-backend-7.onrender.com/geo-location?lat=${lat}&lng=${lng}`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Server error");
@@ -33,6 +36,11 @@ export default function NearbyHospitalScreen({ route }) {
         return res.json();
       })
       .then((data) => {
+        const end = Date.now(); // end timer
+        const timeTaken = end - start; // calculate response time
+        setResponseTime(timeTaken);
+        console.log("⏱️ Response Time:", timeTaken, "ms");
+
         console.log("✅ GeoAPI response:", data);
         setHospitals(data.hospitals || []);
         setLoading(false);
@@ -72,6 +80,8 @@ export default function NearbyHospitalScreen({ route }) {
     <View style={styles.container}>
       <Text style={styles.title}>Recommended Hospitals</Text>
       <Text style={styles.subtitle}>Specialists near your location</Text>
+
+      
 
       {hospitals.length === 0 ? (
         <Text style={{ textAlign: "center", marginTop: 20 }}>
@@ -116,7 +126,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#E6F4FE",  },
+    backgroundColor: "#E6F4FE",
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
@@ -124,7 +135,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6F2EF",
   },
   title: {
-    marginTop:30,
+    marginTop: 30,
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 5,
@@ -132,8 +143,14 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 10,
     color: "#555",
+  },
+  responseTime: {
+    fontSize: 14,
+    marginBottom: 15,
+    color: "#006400",
+    fontWeight: "bold",
   },
   card: {
     backgroundColor: "#fff",
@@ -158,7 +175,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   button: {
-     backgroundColor: "#1D3D47",
+    backgroundColor: "#1D3D47",
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 6,
