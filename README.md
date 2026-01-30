@@ -8,7 +8,7 @@ An AI-powered mobile application that provides instant medical advice based on u
 
 ### 🔗 Download APK
 
-👉 [Download APK](https://expo.dev/accounts/param3840/projects/smartmedicalapp/builds/02678292-42f3-4e96-8568-8ce29babea64)
+👉 [Download APK]()
 
 ### 📷 Scan QR Code
 
