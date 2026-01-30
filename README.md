@@ -1,0 +1,1 @@
+# Smart-Medical-AI---Assistant---Backend-and-Frontend
